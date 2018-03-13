@@ -13,7 +13,7 @@ GLuint vao;
 GLuint buffer;
 int i = 0;
 int cnt = 0;
-GLfloat points[NumPoints*2];
+GLfloat points[(NumPoints*2)*3];
 //----------------------------------------------------------------------------
 void init( void )
 {
@@ -70,16 +70,20 @@ void drawGasket(int x, int y)
     x = (2.0f * x / 640 )- 1.0f;
     y = 1.0f - (2.0f * y) / 640;
     
-    GLfloat vertices[] = { -1.0f, -1.0f,  0.0f, 1.0f,  1.0f, -1.0f };
-    points[0] = 0.25;
-    points[1] = 0.5;
+    GLfloat vertices[] = {x -0.5f, y -0.5f,  x + 0.0f, y+0.5f,  x+0.5f, y-0.5f };
+    points[0] = x + 0.125;
+    points[1] = y - 0.25;
     for (int i = 2; i < NumPoints*2; i+=2) {
-        int j = rand()%3;
-        // Compute the point halfway between the selected vertex and the previous point
+        int j = rand()%3;   // pick a vertex at random
+        // Compute the point halfway between the selected vertex
+        //  and the previous point
         points[i] = (points[i - 2] + vertices[2*j]) / 2.0;
         points[i+1] = (points[i - 1] + vertices[2 * j+1]) / 2.0;
         
     }
+
+    
+    cnt += NumPoints;
 }
 
 void mymouse(GLFWwindow* window, int button, int action, int mods){
@@ -98,8 +102,7 @@ void mymouse(GLFWwindow* window, int button, int action, int mods){
         // float (i.e. make me vec2s)"
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
     } else if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_RIGHT){
-        glfwWindowShouldClose(window);
-        glfwTerminate();
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 }
 
@@ -144,7 +147,7 @@ int main( int argc, char **argv )
         glClear(GL_COLOR_BUFFER_BIT);     // clear the window
         glUseProgram(shader_programme);
         glBindVertexArray(vao);
-        glDrawArrays(GL_POINTS, 0, NumPoints );    // draw the points
+        glDrawArrays(GL_POINTS, 0, cnt);    // draw the points
         /* update other events like input handling */
         glfwPollEvents();
         glfwSwapBuffers(window);
