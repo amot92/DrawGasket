@@ -1,3 +1,7 @@
+// Two-Dimensional Sierpinski Gasket
+// Generated using randomly selected vertices and bisection
+
+
 #include "GL/glew.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,12 +10,9 @@
 const int NumPoints = 5000;
 GLuint shader_programme;
 GLuint vao;
-GLfloat points[NumPoints*2];
-int w;
-int i = 6;
-GLfloat size = 20;
-int cnt = 3;
 GLuint buffer;
+int i = 0;
+int cnt = 0;
 //----------------------------------------------------------------------------
 void init( void )
 {
@@ -19,12 +20,28 @@ void init( void )
     GLuint vert_shader, frag_shader;
     /* GL shader programme object [combined, to link] */
     
+    // Specifiy the vertices for a triangle
+    GLfloat vertices[] = { -1.0f, -1.0f,  0.0f, 1.0f,  1.0f, -1.0f };
+    GLfloat points[NumPoints*2];
+    points[0] = 0.25;
+    points[1] = 0.5;
+    for (int i = 2; i < NumPoints*2; i+=2) {
+        int j = rand()%3;   // pick a vertex at random
+        
+        // Compute the point halfway between the selected vertex
+        //   and the previous point
+        points[i] = (points[i - 2] + vertices[2*j]) / 2.0;
+        points[i+1] = (points[i - 1] + vertices[2 * j+1]) / 2.0;
+        
+    }
+    
     // Create and initialize a buffer object
     glGenBuffers( 1, &buffer );
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
     glBufferData( GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW );
     
     // Create a vertex array object
+    
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     glEnableVertexAttribArray(0);
@@ -40,7 +57,6 @@ void init( void )
     "void main () {"
     "    gl_Position = vPosition;"
     "}";
-    
     /* the fragment shader colours each fragment (pixel-sized area of the
      triangle) */
     const char *fragment_shader = "#version 410\n"
@@ -52,11 +68,9 @@ void init( void )
     vert_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vert_shader, 1, &vertex_shader, NULL);
     glCompileShader(vert_shader);
-    
     frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(frag_shader, 1, &fragment_shader, NULL);
     glCompileShader(frag_shader);
-    
     shader_programme = glCreateProgram();
     glAttachShader(shader_programme, frag_shader);
     glAttachShader(shader_programme, vert_shader);
@@ -65,62 +79,32 @@ void init( void )
     
 }
 
-void drawGasket(int x, int y)
-{
-    x = (2.0f * x / size )- 1.0f;
-    y = 1.0f - (2.0f * y) / size;
-//    GLfloat vertices[] = {x -1.0f, y -1.0f,  x + 0.0f, y+1.0f,  x+1.0f, y-1.0f};
-//    // GLfloat points[NumPoints*2];
-//    points[i] = x + 0.25;
-//    points[i+1] = y - 0.5;
-//    for (int j = 2; j < NumPoints*2; j+=2) {
-//        int k = rand()%3;   // pick a vertex at random
-//        // Compute the point halfway between the selected vertex
-//        //  and the previous point
-//        points[i+j] = (points[i+j - 2] + vertices[2*k]) / 2.0;
-//        points[i+j+1] = (points[i+j - 1] + vertices[2 * k+1]) / 2.0;
-//        cnt++;
+//void drawGasket(int x, int y)
+//{
+//    i += 12;
+//    cnt+=6;
+//}
 //
+//void mymouse(GLFWwindow* window, int button, int action, int mods){
+//    if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_LEFT) {
+//        double x, y;
+//        glfwGetCursorPos(window, &x, &y);
+//
+//        drawGasket(x, y);//add new points to points[] array
+//        //glGenBuffers(1, &buffer);
+//        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+//        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+//        //glGenVertexArrays(1, &vao);
+//
+//        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+//        // "attribute #0 is created from every 2 variables in the above buffer, of type
+//        // float (i.e. make me vec2s)"
+//        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+//    } else if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_RIGHT){
+//        glfwWindowShouldClose(window);
+//        glfwTerminate();
 //    }
-    
-    GLfloat vertices[] = { -1.0f, -1.0f,  0.0f, 1.0f,  1.0f, -1.0f };
-    GLfloat points[NumPoints*2];
-    points[0] = 0.25;
-    points[1] = 0.5;
-    for (int i = 2; i < NumPoints*2; i+=2) {
-        int j = rand()%3;   // pick a vertex at random
-        
-        // Compute the point halfway between the selected vertex
-        //   and the previous point
-        points[i] = (points[i - 2] + vertices[2*j]) / 2.0;
-        points[i+1] = (points[i - 1] + vertices[2 * j+1]) / 2.0;        
-    }
-    
-    //glGenBuffers(1, &buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-    //glGenVertexArrays(1, &vao);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    // "attribute #0 is created from every 2 variables in the above buffer, of type
-    // float (i.e. make me vec2s)"
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-    
-}
-
-
-void mymouse(GLFWwindow* window, int button, int action, int mods){
-    if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_LEFT) {
-        double x, y;
-        glfwGetCursorPos(window, &x, &y);
-        drawGasket(x, y);//add new points to points[] array
-        
-    } else if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_RIGHT) glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-void mykey(GLFWwindow* window, int key, int scancode, int action, int mods){
-    if (key == GLFW_KEY_E && action == GLFW_PRESS) glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
+//}
 
 //----------------------------------------------------------------------------
 
@@ -140,8 +124,8 @@ int main( int argc, char **argv )
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     
-    window = glfwCreateWindow(640, 640, "simple", NULL, NULL);
-    w = 640;
+    window = glfwCreateWindow(640, 480, "Sierpinski Gasket", NULL, NULL);
+    
     if (!window) {
         fprintf(stderr, "ERROR: could not open window with GLFW3\n");
         glfwTerminate();
@@ -157,17 +141,15 @@ int main( int argc, char **argv )
     printf("OpenGL version supported %s\n", version);
     init();
     
-    glfwSetMouseButtonCallback(window, mymouse);
-    glfwSetKeyCallback(window, mykey);
-    
+    // glfwSetMouseButtonCallback(window, mymouse);
     
     do{
-        glClear(GL_COLOR_BUFFER_BIT);// clear the window
+        glClear(GL_COLOR_BUFFER_BIT);     // clear the window
         glUseProgram(shader_programme);
         glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, cnt );// draw the points
-        
-        glfwPollEvents();//like a mouse click or key-press
+        glDrawArrays(GL_POINTS, 0, NumPoints );    // draw the points
+        /* update other events like input handling */
+        glfwPollEvents();
         glfwSwapBuffers(window);
     }
     while (!glfwWindowShouldClose(window));
@@ -177,4 +159,5 @@ int main( int argc, char **argv )
     return 0;
     
 }
+
 
