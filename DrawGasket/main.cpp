@@ -13,27 +13,13 @@ GLuint vao;
 GLuint buffer;
 int i = 0;
 int cnt = 0;
+GLfloat points[NumPoints*2];
 //----------------------------------------------------------------------------
 void init( void )
 {
     
     GLuint vert_shader, frag_shader;
     /* GL shader programme object [combined, to link] */
-    
-    // Specifiy the vertices for a triangle
-    GLfloat vertices[] = { -1.0f, -1.0f,  0.0f, 1.0f,  1.0f, -1.0f };
-    GLfloat points[NumPoints*2];
-    points[0] = 0.25;
-    points[1] = 0.5;
-    for (int i = 2; i < NumPoints*2; i+=2) {
-        int j = rand()%3;   // pick a vertex at random
-        
-        // Compute the point halfway between the selected vertex
-        //   and the previous point
-        points[i] = (points[i - 2] + vertices[2*j]) / 2.0;
-        points[i+1] = (points[i - 1] + vertices[2 * j+1]) / 2.0;
-        
-    }
     
     // Create and initialize a buffer object
     glGenBuffers( 1, &buffer );
@@ -68,43 +54,54 @@ void init( void )
     vert_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vert_shader, 1, &vertex_shader, NULL);
     glCompileShader(vert_shader);
+    
     frag_shader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(frag_shader, 1, &fragment_shader, NULL);
     glCompileShader(frag_shader);
+    
     shader_programme = glCreateProgram();
     glAttachShader(shader_programme, frag_shader);
     glAttachShader(shader_programme, vert_shader);
     glLinkProgram(shader_programme);
-    
-    
 }
 
-//void drawGasket(int x, int y)
-//{
-//    i += 12;
-//    cnt+=6;
-//}
-//
-//void mymouse(GLFWwindow* window, int button, int action, int mods){
-//    if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_LEFT) {
-//        double x, y;
-//        glfwGetCursorPos(window, &x, &y);
-//
-//        drawGasket(x, y);//add new points to points[] array
-//        //glGenBuffers(1, &buffer);
-//        glBindBuffer(GL_ARRAY_BUFFER, buffer);
-//        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
-//        //glGenVertexArrays(1, &vao);
-//
-//        glBindBuffer(GL_ARRAY_BUFFER, buffer);
-//        // "attribute #0 is created from every 2 variables in the above buffer, of type
-//        // float (i.e. make me vec2s)"
-//        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-//    } else if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_RIGHT){
-//        glfwWindowShouldClose(window);
-//        glfwTerminate();
-//    }
-//}
+void drawGasket(int x, int y)
+{
+    x = (2.0f * x / 640 )- 1.0f;
+    y = 1.0f - (2.0f * y) / 640;
+    
+    GLfloat vertices[] = { -1.0f, -1.0f,  0.0f, 1.0f,  1.0f, -1.0f };
+    points[0] = 0.25;
+    points[1] = 0.5;
+    for (int i = 2; i < NumPoints*2; i+=2) {
+        int j = rand()%3;
+        // Compute the point halfway between the selected vertex and the previous point
+        points[i] = (points[i - 2] + vertices[2*j]) / 2.0;
+        points[i+1] = (points[i - 1] + vertices[2 * j+1]) / 2.0;
+        
+    }
+}
+
+void mymouse(GLFWwindow* window, int button, int action, int mods){
+    if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_LEFT) {
+        double x, y;
+        glfwGetCursorPos(window, &x, &y);
+
+        drawGasket(x, y);//add new points to points[] array
+        //glGenBuffers(1, &buffer);
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+        //glGenVertexArrays(1, &vao);
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        // "attribute #0 is created from every 2 variables in the above buffer, of type
+        // float (i.e. make me vec2s)"
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    } else if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_RIGHT){
+        glfwWindowShouldClose(window);
+        glfwTerminate();
+    }
+}
 
 //----------------------------------------------------------------------------
 
@@ -141,7 +138,7 @@ int main( int argc, char **argv )
     printf("OpenGL version supported %s\n", version);
     init();
     
-    // glfwSetMouseButtonCallback(window, mymouse);
+     glfwSetMouseButtonCallback(window, mymouse);
     
     do{
         glClear(GL_COLOR_BUFFER_BIT);     // clear the window
