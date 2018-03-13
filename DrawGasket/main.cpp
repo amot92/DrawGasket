@@ -11,7 +11,7 @@ const int NumPoints = 5000;
 GLuint shader_programme;
 GLuint vao;
 GLuint buffer;
-int i = 0;
+int I = 0;
 int cnt = 0;
 GLfloat points[(NumPoints*2)*3];
 //----------------------------------------------------------------------------
@@ -67,20 +67,19 @@ void init( void )
 
 void drawGasket(float x, float y)
 {
-    printf("\n\nin func %lf\n\n", x);
-    
     GLfloat vertices[] = {x - 0.25f, y -0.25f,  x + 0.0f, y+0.25f,  x+0.25f, y-0.25f };
-    points[0] = x + 0.0625;
-    points[1] = y - 0.125;
+    points[I] = x + 0.0625;
+    points[I+1] = y - 0.125;
     for (int i = 2; i < NumPoints*2; i+=2) {
         int j = rand()%3;   // pick a vertex at random
         // Compute the point halfway between the selected vertex
         //  and the previous point
-        points[i] = (points[i - 2] + vertices[2*j]) / 2.0;
-        points[i+1] = (points[i - 1] + vertices[2 * j+1]) / 2.0;
-        
+        points[I+i] = (points[I+i - 2] + vertices[2*j]) / 2.0;
+        points[I+i+1] = (points[I+i - 1] + vertices[2 * j+1]) / 2.0;
     }
     cnt += NumPoints;
+    I += NumPoints*2;
+    
 }
 
 void mymouse(GLFWwindow* window, int button, int action, int mods){
