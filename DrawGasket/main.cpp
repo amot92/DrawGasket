@@ -65,14 +65,13 @@ void init( void )
     glLinkProgram(shader_programme);
 }
 
-void drawGasket(int x, int y)
+void drawGasket(float x, float y)
 {
-    x = (2.0f * x / 640 )- 1.0f;
-    y = 1.0f - (2.0f * y) / 640;
+    printf("\n\nin func %lf\n\n", x);
     
-    GLfloat vertices[] = {x -0.5f, y -0.5f,  x + 0.0f, y+0.5f,  x+0.5f, y-0.5f };
-    points[0] = x + 0.125;
-    points[1] = y - 0.25;
+    GLfloat vertices[] = {x - 0.25f, y -0.25f,  x + 0.0f, y+0.25f,  x+0.25f, y-0.25f };
+    points[0] = x + 0.0625;
+    points[1] = y - 0.125;
     for (int i = 2; i < NumPoints*2; i+=2) {
         int j = rand()%3;   // pick a vertex at random
         // Compute the point halfway between the selected vertex
@@ -81,8 +80,6 @@ void drawGasket(int x, int y)
         points[i+1] = (points[i - 1] + vertices[2 * j+1]) / 2.0;
         
     }
-
-    
     cnt += NumPoints;
 }
 
@@ -90,7 +87,8 @@ void mymouse(GLFWwindow* window, int button, int action, int mods){
     if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_LEFT) {
         double x, y;
         glfwGetCursorPos(window, &x, &y);
-
+        x = (2.0f * x / 640 )- 1.0f;
+        y = 1.0f - (2.0f * y) / 640;
         drawGasket(x, y);//add new points to points[] array
         //glGenBuffers(1, &buffer);
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
