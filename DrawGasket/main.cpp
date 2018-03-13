@@ -13,7 +13,7 @@ GLuint vao;
 GLuint buffer;
 int I = 0;
 int cnt = 0;
-GLfloat points[(NumPoints*2)*3];
+GLfloat points[(NumPoints*2)*10];
 //----------------------------------------------------------------------------
 void init( void )
 {
