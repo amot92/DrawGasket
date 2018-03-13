@@ -69,18 +69,31 @@ void drawGasket(int x, int y)
 {
     x = (2.0f * x / size )- 1.0f;
     y = 1.0f - (2.0f * y) / size;
-    GLfloat vertices[] = {x -1.0f, y -1.0f,  x + 0.0f, y+1.0f,  x+1.0f, y-1.0f};
-    // GLfloat points[NumPoints*2];
-    points[i] = x + 0.25;
-    points[i+1] = y - 0.5;
-    for (int j = 2; j < NumPoints*2; j+=2) {
-        int k = rand()%3;   // pick a vertex at random
-        // Compute the point halfway between the selected vertex
-        //  and the previous point
-        points[i+j] = (points[i+j - 2] + vertices[2*k]) / 2.0;
-        points[i+j+1] = (points[i+j - 1] + vertices[2 * k+1]) / 2.0;
-        cnt++;
+//    GLfloat vertices[] = {x -1.0f, y -1.0f,  x + 0.0f, y+1.0f,  x+1.0f, y-1.0f};
+//    // GLfloat points[NumPoints*2];
+//    points[i] = x + 0.25;
+//    points[i+1] = y - 0.5;
+//    for (int j = 2; j < NumPoints*2; j+=2) {
+//        int k = rand()%3;   // pick a vertex at random
+//        // Compute the point halfway between the selected vertex
+//        //  and the previous point
+//        points[i+j] = (points[i+j - 2] + vertices[2*k]) / 2.0;
+//        points[i+j+1] = (points[i+j - 1] + vertices[2 * k+1]) / 2.0;
+//        cnt++;
+//
+//    }
+    
+    GLfloat vertices[] = { -1.0f, -1.0f,  0.0f, 1.0f,  1.0f, -1.0f };
+    GLfloat points[NumPoints*2];
+    points[0] = 0.25;
+    points[1] = 0.5;
+    for (int i = 2; i < NumPoints*2; i+=2) {
+        int j = rand()%3;   // pick a vertex at random
         
+        // Compute the point halfway between the selected vertex
+        //   and the previous point
+        points[i] = (points[i - 2] + vertices[2*j]) / 2.0;
+        points[i+1] = (points[i - 1] + vertices[2 * j+1]) / 2.0;        
     }
     
     //glGenBuffers(1, &buffer);
@@ -98,18 +111,11 @@ void drawGasket(int x, int y)
 
 void mymouse(GLFWwindow* window, int button, int action, int mods){
     if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_LEFT) {
-        double x_screen, y_screen, X_world, Y_world;
-        glfwGetCursorPos(window, &x_screen, &y_screen);
-        //        X_world = (2.0f * x_screen / size )- 1.0f;
-        //        Y_world = 1.0f - (2.0f * y_screen) / size;
-        X_world = x_screen;
-        Y_world = y_screen;
-        drawGasket(X_world, Y_world);//add new points to points[] array
+        double x, y;
+        glfwGetCursorPos(window, &x, &y);
+        drawGasket(x, y);//add new points to points[] array
         
-    } else if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_RIGHT){
-        glfwWindowShouldClose(window);
-        glfwTerminate();
-    }
+    } else if (GLFW_PRESS == action && button == GLFW_MOUSE_BUTTON_RIGHT) glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
 void mykey(GLFWwindow* window, int key, int scancode, int action, int mods){
